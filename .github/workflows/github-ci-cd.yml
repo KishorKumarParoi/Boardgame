@@ -28,8 +28,6 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: sudo apt-get maven -y
-    - name: Check mvn
       run: mvn -B package --file pom.xml
     - uses: actions/upload-artifact@v4
       with:
