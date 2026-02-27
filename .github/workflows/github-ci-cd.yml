@@ -1,19 +1,24 @@
-name: My First Workflow                    # Workflow name (shown in Actions tab)
 
-on:                                         # Trigger events
+name: Java CI with Maven
+
+on:
   push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
-  schedule:
-    - cron: '0 0 * * *'                    # Daily at midnight UTC
-
-env:                                        # Global environment variables
-  NODE_ENV: production
+    branches: [ "main" ]
 
 jobs:
-  my-job:                                   # Job name
-    runs-on: ubuntu-latest                 # Runner (machine to run on)
+  build:
+
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Print hello                   # Step name
-        run: echo "Hello World"
+    - uses: actions/checkout@v4
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    - name: Build with Maven
+      run: mvn  package --file pom.xml
+
+  
