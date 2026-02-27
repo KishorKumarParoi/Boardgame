@@ -31,11 +31,12 @@ jobs:
       run: mvn -B package --file pom.xml
     - uses: actions/upload-artifact@v4
       with:
-        name: my-artifact
+        name: Boardgame
         path: target/*.jar
+    
     - name: Trivy FS Scan
-      run: 
-      trivy fs --format table -o trivy-fs-report.html
+      run: |
+      trivy fs --format table -o trivy-fs-report.html .
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
