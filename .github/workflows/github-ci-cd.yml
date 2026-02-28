@@ -12,8 +12,30 @@ env:                                        # Global environment variables
   NODE_ENV: production
 
 jobs:
-  my-job:                                   # Job name
+  build:                                   # Job name
     runs-on: self-hosted                 # Runner (machine to run on)
     steps:
       - name: Print hello                   # Step name
         run: echo "Hello World"
+      - uses: actions/checkout@v4
+      - name: Set Up JDK17
+        uses: actions/setup-java@v3
+        with:
+         java-version: '17'
+         distribution: 'temurin'
+         cache: maven
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+      - uses: actions/upload-artifact@v4 
+        with:
+          name: Boardgmae
+          path: target/*.jar
+      - name: Trivy FS Scan
+        run: |
+           trivy fs --format table -o trivy-fs-report.html .
+           echo "Hello World"
+      - name: Sonarqube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
+          SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
