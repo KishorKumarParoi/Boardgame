@@ -1,56 +1,19 @@
-name: CI/CD Pipeline
+name: My First Workflow                    # Workflow name (shown in Actions tab)
 
-on:
+on:                                         # Trigger events
   push:
-    branches:
-      - main
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * *'                    # Daily at midnight UTC
+
+env:                                        # Global environment variables
+  NODE_ENV: production
 
 jobs:
-  # ============= INSTALL TOOLS =============
- install-tools:
-  name: Install Tools
-  runs-on: self-hosted
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Wait for apt lock
-      run: |
-        while sudo lsof /var/lib/apt/lists/lock > /dev/null 2>&1; do
-          echo "Waiting for apt lock..."
-          sleep 5
-        done
-
-    - name: Set up Java 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
-
-    - name: Install tools
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y maven
-        
-        # Install Trivy
-        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
-        echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
-        sudo apt-get update
-        sudo apt-get install -y trivy
-        
-        # Install kubectl
-        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | gpg --dearmor | sudo tee /etc/apt/keyrings/kubernetes-apt-keyring.gpg > /dev/null
-        echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-        sudo apt-get update
-        sudo apt-get install -y kubectl
-
-    - name: Verify installations
-      run: |
-          echo "=== Installation Summary ==="
-          java -version
-          mvn --version
-          trivy version
-          docker --version
-          kubectl version --client
-          echo "✅ All tools installed successfully"
+  my-job:                                   # Job name
+    runs-on: ubuntu-latest                 # Runner (machine to run on)
+    steps:
+      - name: Print hello                   # Step name
+        run: echo "Hello World"
