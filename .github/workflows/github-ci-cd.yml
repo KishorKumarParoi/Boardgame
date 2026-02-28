@@ -35,7 +35,7 @@ jobs:
           name: Boardgmae
           path: target/*.jar
       - name: Docker
-        run: sudo apt install docker.io
+        run: sudo apt-get install docker.io -y
       - name: Trivy FS Scan
         run: |
            trivy fs --format table -o trivy-fs-report.html .
