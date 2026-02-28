@@ -1,4 +1,4 @@
-name: CICD By DevOps Shack
+name: CICD
 
 on:
   push:
@@ -55,6 +55,11 @@ jobs:
         with:
           name: trivy-fs-report
           path: trivy-fs-report.html
+      # ============= INSTALL MISSING TOOLS =============
+      - name: Install unzip and curl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip curl
 
       # ============= CODE QUALITY: SONARQUBE =============
       - name: SonarQube Scan
