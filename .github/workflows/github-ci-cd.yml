@@ -13,7 +13,7 @@ env:                                        # Global environment variables
 
 jobs:
   my-job:                                   # Job name
-    runs-on: ubuntu-latest                 # Runner (machine to run on)
+    runs-on: self-hosted                 # Runner (machine to run on)
     steps:
       - name: Print hello                   # Step name
         run: echo "Hello World"
