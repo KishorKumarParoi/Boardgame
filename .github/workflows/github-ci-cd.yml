@@ -23,15 +23,15 @@ jobs:
           cache: maven
 
       # ============= BUILD APPLICATION =============
-      - name: Install jq maven
-        run: sudo apt-get update && sudo apt-get install -y jq maven
+      - name: Install jq maven docker
+        run: sudo apt-get update && sudo apt-get install -y jq maven docker.io
       - name: Trivy Install
         run: |
             sudo apt-get install wget gnupg
             wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
             echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
-            sudo apt-get update
-            sudo apt-get install trivy
+            sudo apt-get update -y
+            sudo apt-get install trivy -y
 
       - name: Build with Maven
         run: mvn clean package
