@@ -26,6 +26,7 @@ jobs:
          cache: maven
       - name: Install Maven
         run: |
+         sudo apt-get update -y
          which mvn || sudo apt-get install -y maven
       - name: Build with Maven
         run: mvn -B package --file pom.xml
@@ -33,12 +34,17 @@ jobs:
         with:
           name: Boardgmae
           path: target/*.jar
+      - name: Docker
+        run: sudo apt install docker.io
       - name: Trivy FS Scan
         run: |
            trivy fs --format table -o trivy-fs-report.html .
            echo "Hello World"
+        timeout-minutes: 5
       - name: Sonarqube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
           SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
+      - name: Install jq
+        run: sudo apt-get install -y jq
