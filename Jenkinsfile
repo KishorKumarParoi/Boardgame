@@ -103,21 +103,36 @@ pipeline {
             }
         }
         
-        stage('Publish to Nexus') {
-            steps {
-                echo "📤 Pushing artifacts to Nexus..."
-                script {
-                    sh '''
-                        mvn deploy \
-                        -DskipTests \
-                        -Dmaven.install.skip=true \
-                        -Dcreleaseinfo.skip=true \
-                        -DaltDeploymentRepository="${NEXUS_REPOSITORY}::default::${NEXUS_URL}/repository/${NEXUS_REPOSITORY}/" \
-                        -Dmaven.wagon.http.ssl.insecure=true
-                    '''
-                }
-            }
-        }
+   stage('Publish to Nexus') {
+    steps {
+        echo "📤 Pushing artifacts to Nexus..."
+        sh '''
+            # Create Maven settings file with credentials
+            mkdir -p ~/.m2
+            cat > ~/.m2/settings.xml <<'SETTINGS_EOF'
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" 
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+    <server>
+      <id>maven-releases</id>
+      <username>admin</username>
+      <password>admin123</password>
+    </server>
+    <server>
+      <id>maven-snapshots</id>
+      <username>admin</username>
+      <password>admin123</password>
+    </server>
+  </servers>
+</settings>
+SETTINGS_EOF
+
+            # Deploy to Nexus
+            mvn deploy -DskipTests
+        '''
+    }
+}
         
         stage('Docker Build & Tag') {
             steps {
@@ -168,13 +183,11 @@ pipeline {
         stage('Update Deployment File in Boardgame'){
             steps{
                 script{
-                    // clean workspace before starting
-                    cleanWs()
                     withCredentials([usernamePassword(credentialsId: 'git', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                       sh '''
-                        git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/kishorumarparoi/boardgame.git
+                        git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/KishorKumarParoi/Boardgame.git
                         cd Boardgame
-                        sed -i "s[kishorkumarparoi/boardgame:.*|kishorkumarparoi/boardgame:${IMAGE_TAG}]" k8s/08-deploy.yaml
+                        sed -i "s|kishorkumarparoi/boardgame:.*|kishorkumarparoi/boardgame:${IMAGE_TAG}|g" k8s/08-deploy.yaml
                         echo "Updated Deploy file"
                         cat k8s/08-deploy.yaml
                         git config user.name "KishorKumarParoi"
